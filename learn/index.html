@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Club — Learning Hub</title>
+
+    <link rel="icon" href="/images/photo1769090522.jpg" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./learn/learn.css" preload>
+
+</head>
+
+<body>
+    <!-- Header + Navigation -->
+    <header class="site-header">
+        <div class="logo-container" onclick="window.location.href='/'">
+            <img src="logo.png" alt="DAC logo" class="logo-icon" style="width: 50px;">
+            <div class="logo-text">
+                <span class="logo-title">DAC</span>
+                <span class="logo-subtitle">Learning Hub</span>
+            </div>
+        </div>
+
+        <nav class="nav-pill">
+            <a href="/#about" class="nav-link">About</a>
+            <a href="/#solutions" class="nav-link">Initiatives</a>
+            <a href="/#events" class="nav-link">Events</a>
+            <a href="/#achievements" class="nav-link">Impact</a>
+            <a href="/#contact" class="nav-link">Contact</a>
+        </nav>
+
+        <div class="cta-container">
+            <a href="/" class="join-btn">Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Learning Hub Content -->
+    <div class="learning-container">
+        <section class="module-section">
+            <div class="dac-header">
+                <h1>DAC Learning Hub</h1>
+                <p>Practical data skills for tomorrow's analysts</p>
+            </div>
+
+            <div id="modules-container" class="modules-grid"></div>
+        </section>
+    </div>
+
+    <!-- VIDEO MODAL -->
+    <div id="video-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal" class="modal-close">✕</button>
+            <h3 id="video-title"></h3>
+
+            <div id="error-message" class="error-message">
+                <strong>⚠️ Video Playback Error</strong>
+                <p id="error-text"></p>
+            </div>
+
+            <div class="video-wrapper">
+                <div id="player"></div>
+            </div>
+
+            <div class="progress-container">
+                <p id="progress-text">Progress: 0%</p>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button id="prev-chapter">← Previous</button>
+                <button id="next-chapter">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>Data Analytics Club — DDUC</p>
+                <p>A student initiative for practical data skills and industry collaboration.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/company/data-analytics-club-dduc-du/" target="_blank" rel="noreferrer">LinkedIn</a>
+                <a href="https://www.instagram.com/dataanalyticsclubdduc/" target="_blank" rel="noreferrer">Instagram</a>
+                <a href="https://dducollegedu.ac.in/" target="_blank" rel="noreferrer">DDU College</a>
+                <a href="#">Privacy</a>
+            </div>
+
+            <div class="footer-copyright">
+                &copy; 2026 Data Analytics Club — DDUC<br>
+                Made by Technical & Research team DAC
+            </div>
+        </div>
+    </footer>
+
+    <script src="./learn/learn.js" defer></script>
+</body>
+</html>
