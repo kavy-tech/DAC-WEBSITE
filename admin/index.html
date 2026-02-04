@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAC Admin Dashboard</title>
+    <link rel="icon" href="/images/photo1769090522.jpg" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./admin/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">DAC</span>
+                        <span class="logo-subtitle">Admin Panel</span>
+                    </div>
+                </div>
+                <div class="admin-profile">
+                    <div class="profile-avatar">AD</div>
+                    <div class="profile-info">
+                        <div class="profile-name">Admin User</div>
+                        <div class="profile-role">Super Admin</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="modules">
+                    <i class="fas fa-book-open"></i>
+                    <span>Modules</span>
+                </a>
+                <a href="#" class="nav-item" data-section="chapters">
+                    <i class="fas fa-video"></i>
+                    <span>Chapters</span>
+                </a>
+                <a href="#" class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-title">
+                    <h1>Dashboard</h1>
+                    <p>Manage your Learning Hub content and analytics</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <button class="btn-primary" id="add-content-btn">
+                        <i class="fas fa-plus"></i> Add Content
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section (Default View) -->
+            <section id="dashboard-section" class="admin-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>12</h3>
+                            <p>Total Modules</p>
+                            <span class="stat-change positive">↑ 15% from last month</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>48</h3>
+                            <p>Total Chapters</p>
+                            <span class="stat-change positive">↑ 22% from last month</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>1,240</h3>
+                            <p>Active Learners</p>
+                            <span class="stat-change positive">↑ 8% from last month</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>78%</h3>
+                            <p>Avg. Completion Rate</p>
+                            <span class="stat-change negative">↓ 2% from last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Recent Activity</h2>
+                            <button class="panel-action">View All</button>
+                        </div>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon green">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Python Basics</strong> module updated</p>
+                                    <span class="activity-time">2 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon blue">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>New chapter added to <strong>Data Visualization</strong></p>
+                                    <span class="activity-time">5 hours ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon purple">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>15 new learners joined this week</p>
+                                    <span class="activity-time">Yesterday</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon orange">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p><strong>Alex Rivera</strong> completed SQL Fundamentals</p>
+                                    <span class="activity-time">Feb 1, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Content Status</h2>
+                            <button class="panel-action">Refresh</button>
+                        </div>
+                        <div class="status-grid">
+                            <div class="status-item">
+                                <div class="status-title">Published Modules</div>
+                                <div class="status-value">10</div>
+                                <div class="status-bar">
+                                    <div class="status-fill" style="width: 83%; background: #4CAF50;"></div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-title">Draft Modules</div>
+                                <div class="status-value">2</div>
+                                <div class="status-bar">
+                                    <div class="status-fill" style="width: 17%; background: #FF9800;"></div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-title">Active Chapters</div>
+                                <div class="status-value">42</div>
+                                <div class="status-bar">
+                                    <div class="status-fill" style="width: 88%; background: #2196F3;"></div>
+                                </div>
+                            </div>
+                            <div class="status-item">
+                                <div class="status-title">Pending Review</div>
+                                <div class="status-value">6</div>
+                                <div class="status-bar">
+                                    <div class="status-fill" style="width: 12%; background: #9C27B0;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modules Section -->
+            <section id="modules-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Module Management</h2>
+                    <p>Organize learning modules and their content structure</p>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Module Title</th>
+                                <th>Description</th>
+                                <th>Chapters</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MOD-001</td>
+                                <td>Python Fundamentals</td>
+                                <td>Core programming concepts and syntax</td>
+                                <td>8</td>
+                                <td><span class="status-badge published">Published</span></td>
+                                <td>
+                                    <button class="table-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="table-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="table-btn delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MOD-002</td>
+                                <td>Data Visualization</td>
+                                <td>Creating effective visual representations</td>
+                                <td>6</td>
+                                <td><span class="status-badge published">Published</span></td>
+                                <td>
+                                    <button class="table-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="table-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="table-btn delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MOD-003</td>
+                                <td>SQL for Analysts</td>
+                                <td>Database querying and manipulation</td>
+                                <td>5</td>
+                                <td><span class="status-badge draft">Draft</span></td>
+                                <td>
+                                    <button class="table-btn edit"><i class="fas fa-edit"></i></button>
+                                    <button class="table-btn view"><i class="fas fa-eye"></i></button>
+                                    <button class="table-btn delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Other sections would follow similar pattern -->
+            <section id="chapters-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Chapter Management</h2>
+                    <p>Manage video content and learning materials</p>
+                </div>
+                <!-- Content would go here -->
+            </section>
+            
+            <section id="users-section" class="admin-section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <p>Monitor learner progress and engagement</p>
+                </div>
+                <!-- Content would go here -->
+            </section>
+            
+            <section id="analytics-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Learning Analytics</h2>
+                    <p>Track engagement and content performance</p>
+                </div>
+                <!-- Content would go here -->
+            </section>
+            
+            <section id="settings-section" class="admin-section">
+                <div class="section-header">
+                    <h2>System Settings</h2>
+                    <p>Configure platform preferences and integrations</p>
+                </div>
+                <!-- Content would go here -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Content Modal -->
+    <div id="content-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Add New Content</h3>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="content-type-selector">
+                    <button class="content-type-btn active" data-type="module">
+                        <i class="fas fa-book"></i>
+                        <span>New Module</span>
+                    </button>
+                    <button class="content-type-btn" data-type="chapter">
+                        <i class="fas fa-video"></i>
+                        <span>New Chapter</span>
+                    </button>
+                    <button class="content-type-btn" data-type="announcement">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Announcement</span>
+                    </button>
+                </div>
+                
+                <div id="module-form" class="content-form active">
+                    <div class="form-group">
+                        <label for="module-title">Module Title *</label>
+                        <input type="text" id="module-title" placeholder="e.g., Advanced Statistics">
+                    </div>
+                    <div class="form-group">
+                        <label for="module-desc">Description *</label>
+                        <textarea id="module-desc" rows="3" placeholder="Brief overview of module content"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Visibility</label>
+                        <div class="toggle-group">
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                            <span>Published</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="chapter-form" class="content-form">
+                    <div class="form-group">
+                        <label for="chapter-title">Chapter Title *</label>
+                        <input type="text" id="chapter-title" placeholder="e.g., Hypothesis Testing">
+                    </div>
+                    <div class="form-group">
+                        <label for="chapter-desc">Description *</label>
+                        <textarea id="chapter-desc" rows="2" placeholder="Chapter learning objectives"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="video-id">YouTube Video ID *</label>
+                        <div class="video-id-group">
+                            <input type="text" id="video-id" placeholder="dQw4w9WgXcQ">
+                            <button class="btn-secondary" id="preview-video">Preview</button>
+                        </div>
+                        <small class="form-hint">Find ID in YouTube URL: youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></small>
+                    </div>
+                </div>
+                
+                <div id="announcement-form" class="content-form">
+                    <div class="form-group">
+                        <label for="announcement-title">Announcement Title *</label>
+                        <input type="text" id="announcement-title" placeholder="Important update">
+                    </div>
+                    <div class="form-group">
+                        <label for="announcement-content">Content *</label>
+                        <textarea id="announcement-content" rows="4" placeholder="Announcement details..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Audience</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" checked> All Learners</label>
+                            <label><input type="checkbox"> Module Completers</label>
+                            <label><input type="checkbox"> New Users</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-content">Cancel</button>
+                <button class="btn-primary" id="save-content">Publish Content</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic admin functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navigation handling
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetSection = item.getAttribute('data-section');
+                    
+                    // Update active navigation
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Show target section
+                    document.querySelectorAll('.admin-section').forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === `${targetSection}-section`) {
+                            section.classList.add('active');
+                            document.querySelector('.admin-header h1').textContent = 
+                                targetSection.charAt(0).toUpperCase() + targetSection.slice(1);
+                        }
+                    });
+                });
+            });
+            
+            // Modal handling
+            const modal = document.getElementById('content-modal');
+            document.getElementById('add-content-btn').addEventListener('click', () => {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Content type switching
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button
+                    document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Show relevant form
+                    const type = btn.getAttribute('data-type');
+                    document.querySelectorAll('.content-form').forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === `${type}-form`) {
+                            form.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Form actions
+            document.getElementById('cancel-content').addEventListener('click', () => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            document.getElementById('save-content').addEventListener('click', () => {
+                alert('Content successfully published!');
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Logout confirmation
+            document.querySelector('.logout-btn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    window.location.href = '/';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
