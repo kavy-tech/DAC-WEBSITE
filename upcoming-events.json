@@ -1,0 +1,24 @@
+{
+    "events": [
+        {
+            "id": 1,
+            "title": "Spring Analytics Workshop — Mar 12–14, 2026",
+            "description": "Three-day practical workshop covering data cleaning, feature engineering and model interpretation. Hands-on labs included."
+        },
+        {
+            "id": 2,
+            "title": "Campus Hackathon — Apr 18–19, 2026",
+            "description": "24-hour hackathon — themes: civic data, education, and sustainability. Open to cross-discipline teams."
+        },
+        {
+            "id": 3,
+            "title": "Monthly Data Clinics — 2nd Saturday (Monthly)",
+            "description": "Bring your dataset. Peer review + mentor office hours to unblock ongoing projects."
+        },
+        {
+            "id": 4,
+            "title": "Strategy Storm (Case Series)",
+            "description": "Bi-monthly case-practice sessions with live feedback and expected outcomes for consulting-style problem solving."
+        }
+    ]
+}
