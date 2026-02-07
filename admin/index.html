@@ -94,42 +94,100 @@
                 <div class="section-header">
                     <h2>JSON Content Sync</h2>
                     <p>
-                        Download the current course structure as JSON, edit it locally,
-                        then upload it to overwrite Supabase content.
+                        Download the current course structure as JSON, edit it with live syntax highlighting,
+                        validate, and upload it back to Supabase.
                     </p>
                 </div>
 
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3>Download</h3>
+                <div class="json-editor-container">
+                    <!-- Download Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-download"></i> Download JSON</h3>
+                        </div>
+                        <p>Exports the full modules + chapters structure as JSON.</p>
+                        <button class="btn-primary" id="download-json">
+                            <i class="fas fa-download"></i> Download JSON
+                        </button>
                     </div>
-                    <p>Exports the full modules + chapters structure.</p>
-                    <button class="btn-primary" id="download-json">
-                        <i class="fas fa-download"></i> Download JSON
-                    </button>
+
+                    <!-- Editor Panel -->
+                    <div class="panel json-editor-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-code"></i> JSON Editor</h3>
+                            <div class="editor-controls">
+                                <button class="editor-btn" id="format-json" title="Format & Pretty-print JSON">
+                                    <i class="fas fa-indent"></i> Format
+                                </button>
+                                <button class="editor-btn" id="validate-json" title="Validate JSON syntax">
+                                    <i class="fas fa-check-circle"></i> Validate
+                                </button>
+                                <button class="editor-btn" id="copy-json" title="Copy JSON to clipboard">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <button class="editor-btn" id="clear-json" title="Clear editor">
+                                    <i class="fas fa-trash"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="json-editor-wrapper">
+                            <textarea id="json-editor" class="json-editor" placeholder="Paste JSON or download from above..."></textarea>
+                            <div id="editor-line-numbers" class="editor-line-numbers"></div>
+                        </div>
+
+                        <div id="editor-status" class="editor-status hidden">
+                            <span id="editor-status-message"></span>
+                        </div>
+
+                        <div id="editor-stats" class="editor-stats">
+                            <span>Lines: <span id="line-count">0</span></span>
+                            <span>Size: <span id="size-count">0</span> B</span>
+                            <span>Valid: <span id="valid-status" class="status-invalid">?</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Upload Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-upload"></i> Upload & Sync</h3>
+                        </div>
+                        <p class="warning">
+                            ⚠ <strong>Warning:</strong> Uploading will replace all existing modules & chapters in the database.
+                        </p>
+
+                        <div class="upload-methods">
+                            <!-- Method 1: File Upload -->
+                            <div class="upload-method">
+                                <h4><i class="fas fa-file"></i> Method 1: Upload File</h4>
+                                <div class="custom-file-upload">
+                                    <input type="file" id="upload-json" accept="application/json" />
+                                    <label for="upload-json" class="btn-upload">
+                                        <i class="fas fa-folder-open"></i> Choose JSON File
+                                    </label>
+                                    <span id="file-name" class="file-name">No file chosen</span>
+                                </div>
+                            </div>
+
+                            <!-- Method 2: Editor Upload -->
+                            <div class="upload-method">
+                                <h4><i class="fas fa-code"></i> Method 2: Upload from Editor</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+                                    Validates and syncs JSON directly from the editor above.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="upload-actions">
+                            <button class="btn-primary" id="upload-btn">
+                                <i class="fas fa-sync"></i> Sync from File
+                            </button>
+                            <button class="btn-primary" id="upload-editor-btn" style="background: #667eea;">
+                                <i class="fas fa-cloud-upload-alt"></i> Sync from Editor
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="panel">
-                    <div class="panel-header">
-                        <h3>Upload</h3>
-                    </div>
-                    <p class="warning">
-                        ⚠ Uploading will <strong>replace all existing modules & chapters</strong>.
-                    </p>
-
-                    <div class="custom-file-upload">
-                        <input type="file" id="upload-json" accept="application/json" />
-                        <label for="upload-json" class="btn-upload">
-                            <i class="fas fa-upload"></i> Choose JSON File
-                        </label>
-                        <span id="file-name" class="file-name">No file chosen</span>
-                    </div>
-
-
-                    <button class="btn-primary" id="upload-btn">
-                        <i class="fas fa-upload"></i> Upload & Sync JSON
-                    </button>
-                    </div>
             </section>
 
             <!-- Users -->

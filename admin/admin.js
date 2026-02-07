@@ -200,6 +200,236 @@ document.getElementById("download-json").addEventListener("click", async () => {
 });
 
 /* =========================
+JSON EDITOR FUNCTIONS
+========================= */
+
+const jsonEditor = document.getElementById('json-editor');
+const formatBtn = document.getElementById('format-json');
+const validateBtn = document.getElementById('validate-json');
+const copyBtn = document.getElementById('copy-json');
+const clearBtn = document.getElementById('clear-json');
+const uploadEditorBtn = document.getElementById('upload-editor-btn');
+
+// Update line numbers and stats when editor content changes
+function updateEditorStats() {
+  const content = jsonEditor.value;
+  const lines = content.split('\n').length;
+  const sizeBytes = new Blob([content]).size;
+  
+  document.getElementById('line-count').textContent = lines;
+  document.getElementById('size-count').textContent = sizeBytes;
+
+  // Update line numbers
+  const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+  document.getElementById('editor-line-numbers').textContent = lineNumbers;
+
+  // Validate JSON in real-time
+  updateValidationStatus();
+}
+
+// Validate JSON and show status
+function updateValidationStatus() {
+  const content = jsonEditor.value.trim();
+  const status = document.getElementById('editor-status');
+  const statusMessage = document.getElementById('editor-status-message');
+  const validStatus = document.getElementById('valid-status');
+
+  if (!content) {
+    status.classList.add('hidden');
+    validStatus.textContent = '?';
+    validStatus.className = 'status-invalid';
+    return;
+  }
+
+  try {
+    JSON.parse(content);
+    status.classList.remove('hidden');
+    status.className = 'editor-status success';
+    statusMessage.innerHTML = '<i class="fas fa-check-circle"></i> Valid JSON ✓';
+    validStatus.textContent = '✓ Valid';
+    validStatus.className = 'status-valid';
+  } catch (err) {
+    status.classList.remove('hidden');
+    status.className = 'editor-status error';
+    statusMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${err.message}`;
+    validStatus.textContent = '✗ Invalid';
+    validStatus.className = 'status-invalid';
+  }
+}
+
+// Format/prettify JSON
+if (formatBtn) {
+  formatBtn.addEventListener('click', () => {
+    const content = jsonEditor.value.trim();
+    try {
+      const json = JSON.parse(content);
+      jsonEditor.value = JSON.stringify(json, null, 2);
+      updateEditorStats();
+      showStatus('JSON formatted successfully!', 'success');
+    } catch (err) {
+      showStatus('Invalid JSON: ' + err.message, 'error');
+    }
+  });
+}
+
+// Validate JSON
+if (validateBtn) {
+  validateBtn.addEventListener('click', () => {
+    const content = jsonEditor.value.trim();
+    try {
+      JSON.parse(content);
+      showStatus('JSON is valid! ✓', 'success');
+    } catch (err) {
+      showStatus('Invalid JSON: ' + err.message, 'error');
+    }
+  });
+}
+
+// Copy JSON to clipboard
+if (copyBtn) {
+  copyBtn.addEventListener('click', () => {
+    const content = jsonEditor.value;
+    if (!content.trim()) {
+      showStatus('Nothing to copy!', 'error');
+      return;
+    }
+    navigator.clipboard.writeText(content).then(() => {
+      showStatus('Copied to clipboard! ✓', 'success');
+    }).catch(() => {
+      showStatus('Failed to copy', 'error');
+    });
+  });
+}
+
+// Clear editor
+if (clearBtn) {
+  clearBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear the editor?')) {
+      jsonEditor.value = '';
+      updateEditorStats();
+      showStatus('Editor cleared', 'info');
+    }
+  });
+}
+
+// Sync from editor
+if (uploadEditorBtn) {
+  uploadEditorBtn.addEventListener('click', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      showStatus('Please log in to upload', 'error');
+      return;
+    }
+
+    const content = jsonEditor.value.trim();
+    if (!content) {
+      showStatus('Editor is empty', 'error');
+      return;
+    }
+
+    try {
+      const json = JSON.parse(content);
+      validateJSON(json);
+      
+      if (confirm('This will replace all existing modules & chapters. Continue?')) {
+        await syncToSupabase(json);
+        showStatus('JSON synced successfully! ✓', 'success');
+      }
+    } catch (err) {
+      showStatus('Error: ' + err.message, 'error');
+    }
+  });
+}
+
+// Download and populate editor
+document.getElementById("download-json").addEventListener("click", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("Please log in to download JSON");
+    return;
+  }
+
+  if (!modulesTableName || !chaptersTableName) {
+    alert("Table configuration not loaded. Please refresh the page.");
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from(modulesTableName)
+      .select(`
+        id,
+        title,
+        description,
+        duration,
+        sort_order,
+        ${chaptersTableName} (
+          id,
+          title,
+          video_id,
+          duration,
+          description,
+          links,
+          sort_order
+        )
+      `)
+      .order("sort_order", { ascending: true })
+      .order("sort_order", { foreignTable: chaptersTableName, ascending: true });
+
+    if (error) throw error;
+
+    const json = {
+      modules: data.map(m => ({
+        id: m.id,
+        title: m.title,
+        description: m.description,
+        duration: m.duration,
+        chapters: (m[chaptersTableName] || []).map(c => ({
+          id: c.id,
+          title: c.title,
+          videoId: c.video_id || "",
+          duration: c.duration,
+          description: c.description,
+          links: c.links || []
+        }))
+      }))
+    };
+
+    // Populate editor and download
+    const jsonString = JSON.stringify(json, null, 2);
+    jsonEditor.value = jsonString;
+    updateEditorStats();
+    downloadFile("learning-data.json", jsonString);
+    showStatus('JSON downloaded and loaded in editor!', 'success');
+  } catch (err) {
+    showStatus('Failed to download: ' + err.message, 'error');
+    console.error(err);
+  }
+});
+
+// Show status message
+function showStatus(message, type) {
+  const status = document.getElementById('editor-status');
+  const statusMessage = document.getElementById('editor-status-message');
+  
+  status.className = `editor-status ${type}`;
+  statusMessage.textContent = message;
+  status.classList.remove('hidden');
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    status.classList.add('hidden');
+  }, 5000);
+}
+
+// Track editor changes
+if (jsonEditor) {
+  jsonEditor.addEventListener('input', updateEditorStats);
+  jsonEditor.addEventListener('change', updateEditorStats);
+  updateEditorStats(); // Initial update
+}
+
+/* =========================
 UPLOAD JSON
 ========================= */
 document.getElementById("upload-btn").addEventListener("click", async () => {
@@ -355,7 +585,7 @@ navItems.forEach(item => {
 
     // Load editor content when switching to editor section
     if (target === 'content-editor-section') {
-      loadEditorContent();
+      loadDynamicContent();
     }
   });
 });
@@ -365,8 +595,7 @@ JSON CONTENT EDITOR
 ========================= */
 
 let currentData = null;
-let selectedModule = null;
-let selectedChapter = null;
+let selectedRecord = null;
 let currentTable = 'db_modules';
 
 // Dynamic table names (fetched from public_tables_list)
@@ -441,122 +670,110 @@ function populateTableSelector() {
 // Table selector listener
 document.getElementById('table-select')?.addEventListener('change', (e) => {
   currentTable = e.target.value;
-  loadEditorContent();
+  selectedRecord = null;
+  loadDynamicContent();
 });
 
-async function loadEditorContent() {
+// Get table schema/columns
+async function getTableSchema(tableName) {
+  try {
+    const { data, error } = await supabase
+      .from(tableName)
+      .select()
+      .limit(0);
+
+    if (error) throw error;
+
+    // Get column info from the response
+    const result = await supabase.rpc('get_table_columns', { table_name: tableName }).catch(() => null);
+    
+    return result?.data || null;
+  } catch (err) {
+    console.error('Failed to get schema:', err);
+    return null;
+  }
+}
+
+async function loadDynamicContent() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     alert("Please log in to edit content");
     return;
   }
 
-  if (!modulesTableName || !chaptersTableName) {
-    alert("Table configuration not loaded. Please refresh the page.");
+  if (!currentTable) {
+    alert("Table not selected");
     return;
   }
 
   try {
-    let data;
-    let error;
+    console.log(`Loading data from table: ${currentTable}`);
     
-    if (currentTable === 'db_modules') {
-      console.log(`Loading from ${modulesTableName} with relationship to ${chaptersTableName}`);
-      
-      const result = await supabase
-        .from(modulesTableName)
-        .select(`
-          id,
-          title,
-          description,
-          duration,
-          sort_order,
-          ${chaptersTableName} (
-            id,
-            title,
-            video_id,
-            duration,
-            description,
-            links,
-            sort_order
-          )
-        `)
-        .order("sort_order", { ascending: true })
-        .order("sort_order", { foreignTable: chaptersTableName, ascending: true });
-      
-      data = result.data;
-      error = result.error;
-      
-      if (error) {
-        console.error('Query error:', error);
-        throw error;
-      }
-    } else {
-      const result = await supabase
+    let { data, error } = await supabase
+      .from(currentTable)
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    // Fallback: try ordering by id if created_at doesn't exist
+    if (error) {
+      const { data: fallbackData, error: fallbackError } = await supabase
         .from(currentTable)
         .select('*')
         .order('id', { ascending: true });
       
-      data = result.data;
-      error = result.error;
+      if (fallbackError) throw fallbackError;
+      data = fallbackData;
+      error = null;
     }
 
     if (error) throw error;
 
-    currentData = data;
-    selectedModule = null;
-    selectedChapter = null;
-    renderModulesList();
+    currentData = data || [];
+    selectedRecord = null;
+    
+    renderDynamicList();
   } catch (err) {
-    console.error('LoadEditorContent error:', err);
+    console.error('LoadDynamicContent error:', err);
     alert("Failed to load content: " + err.message);
   }
 }
 
-function renderModulesList() {
-  const modulesList = document.getElementById('modules-list');
-  modulesList.innerHTML = '';
+function renderDynamicList() {
+  const recordsList = document.getElementById('modules-list');
+  recordsList.innerHTML = '';
 
-  currentData.forEach(module => {
-    const chaptersArray = module[chaptersTableName] || [];
-    const moduleDiv = document.createElement('div');
-    moduleDiv.className = 'module-item' + (selectedModule?.id === module.id ? ' active' : '');
-    moduleDiv.innerHTML = `
-      <div class="module-item-title">${module.title}</div>
-      <div class="module-item-subtitle">${chaptersArray.length || 0} chapters</div>
+  // Add "New Record" button at the top
+  const newRecordBtn = document.createElement('button');
+  newRecordBtn.className = 'btn-new-module';
+  newRecordBtn.innerHTML = '<i class="fas fa-plus"></i> New ' + (currentTable.replace('db_', '').replace(/_/g, ' '));
+  newRecordBtn.addEventListener('click', addNewRecord);
+  recordsList.appendChild(newRecordBtn);
+
+  // Render records
+  currentData.forEach((record, index) => {
+    const displayField = record.title || record.name || record.email || record.id || `Record ${index + 1}`;
+    const recordDiv = document.createElement('div');
+    recordDiv.className = 'module-item' + (selectedRecord?.id === record.id ? ' active' : '');
+    recordDiv.innerHTML = `
+      <div class="module-item-title">${displayField}</div>
+      <div class="module-item-subtitle">${currentTable}</div>
       <div class="module-item-actions">
-        <button class="module-item-btn" data-action="edit-module" data-module-id="${module.id}" title="Edit Module">
+        <button class="module-item-btn" data-action="edit-record" data-record-id="${record.id}" title="Edit">
           <i class="fas fa-edit"></i>
         </button>
-        <button class="module-item-btn" data-action="delete-module" data-module-id="${module.id}" title="Delete Module">
+        <button class="module-item-btn" data-action="delete-record" data-record-id="${record.id}" title="Delete">
           <i class="fas fa-trash"></i>
         </button>
       </div>
-      <div class="chapter-list" id="chapters-${module.id}"></div>
     `;
 
-    moduleDiv.addEventListener('click', (e) => {
+    recordDiv.addEventListener('click', (e) => {
       if (!e.target.closest('.module-item-actions')) {
-        selectModule(module);
+        selectRecord(record);
       }
     });
 
-    modulesList.appendChild(moduleDiv);
-
-    // Render chapters
-    if (chaptersArray && chaptersArray.length > 0) {
-      const chaptersContainer = moduleDiv.querySelector(`#chapters-${module.id}`);
-      chaptersArray.forEach(chapter => {
-        const chapterDiv = document.createElement('div');
-        chapterDiv.className = 'chapter-item' + (selectedChapter?.id === chapter.id ? ' active' : '');
-        chapterDiv.textContent = chapter.title;
-        chapterDiv.addEventListener('click', (e) => {
-          e.stopPropagation();
-          selectChapter(module, chapter);
-        });
-        chaptersContainer.appendChild(chapterDiv);
-      });
-    }
+    recordsList.appendChild(recordDiv);
   });
 
   // Attach event listeners to action buttons
@@ -564,19 +781,13 @@ function renderModulesList() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const action = btn.getAttribute('data-action');
-      const moduleId = btn.getAttribute('data-module-id');
-      const chapterId = btn.getAttribute('data-chapter-id');
+      const recordId = btn.getAttribute('data-record-id');
 
-      if (action === 'edit-module') {
-        selectModule(currentData.find(m => m.id === moduleId));
-      } else if (action === 'delete-module') {
-        deleteModule(moduleId);
-      } else if (action === 'edit-chapter') {
-        const module = currentData.find(m => m.id === moduleId);
-        const chapter = module[chaptersTableName].find(c => c.id === chapterId);
-        selectChapter(module, chapter);
-      } else if (action === 'delete-chapter') {
-        deleteChapter(moduleId, chapterId);
+      if (action === 'edit-record') {
+        const record = currentData.find(r => r.id == recordId);
+        if (record) selectRecord(record);
+      } else if (action === 'delete-record') {
+        deleteRecord(recordId);
       }
     });
   });
@@ -585,211 +796,139 @@ function renderModulesList() {
   initializeSearchListener();
 }
 
-function selectModule(module) {
-  selectedModule = module;
-  selectedChapter = null;
+function selectRecord(record) {
+  selectedRecord = record;
   renderEditorContent();
-  renderModulesList();
-}
-
-function selectChapter(module, chapter) {
-  selectedModule = module;
-  selectedChapter = chapter;
-  renderEditorContent();
-  renderModulesList();
+  renderDynamicList();
 }
 
 function renderEditorContent() {
   const editorContent = document.getElementById('editor-content');
 
-  if (!selectedModule) {
+  if (!selectedRecord) {
     editorContent.innerHTML = `
       <div class="no-selection">
         <i class="fas fa-inbox"></i>
-        <p>Select a module or chapter to edit</p>
+        <p>Select a record to edit</p>
       </div>
     `;
     return;
   }
 
-  if (selectedChapter) {
-    renderChapterEditor(editorContent);
-  } else {
-    renderModuleEditor(editorContent);
-  }
+  renderDynamicEditor(editorContent);
 }
 
-function renderModuleEditor(container) {
-  const module = selectedModule;
-  const chaptersArray = module[chaptersTableName] || [];
-  container.innerHTML = `
+function renderDynamicEditor(container) {
+  const record = selectedRecord;
+  
+  // Build form dynamically based on record fields
+  const fields = Object.keys(record).filter(key => !key.startsWith('_'));
+  
+  let formHTML = `
     <div class="edit-form">
-      <h2 style="margin-bottom: 24px;">${module.title}</h2>
-
-      <div class="form-group">
-        <label class="form-label">Module Title</label>
-        <input type="text" class="form-input" id="edit-title" value="${module.title}" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="edit-description">${module.description || ''}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Duration</label>
-        <input type="text" class="form-input" id="edit-duration" value="${module.duration || ''}" placeholder="e.g., 10 Days" />
-      </div>
-
-      <div class="form-actions">
-        <button class="btn-save" id="save-module">
-          <i class="fas fa-save"></i> Save Module
-        </button>
-        <button class="btn-delete" id="delete-module">
-          <i class="fas fa-trash"></i> Delete
-        </button>
-      </div>
-
-      <div class="chapters-section">
-        <div class="chapters-header">
-          <h3>Chapters (${chaptersArray.length || 0})</h3>
-          <button class="btn-add-chapter" id="add-chapter">
-            <i class="fas fa-plus"></i> Add Chapter
-          </button>
-        </div>
-
-        <div class="chapters-list">
-          ${chaptersArray?.map(ch => `
-            <div class="chapter-card">
-              <div class="chapter-card-header">
-                <div style="flex: 1;">
-                  <div class="chapter-card-title">${ch.title}</div>
-                  <div class="chapter-card-id">ID: ${ch.id} • ${ch.duration || 'N/A'}</div>
-                </div>
-                <div class="chapter-card-actions">
-                  <button class="chapter-card-btn edit" data-action="edit-chapter" data-chapter-id="${ch.id}">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="chapter-card-btn delete" data-action="delete-chapter" data-chapter-id="${ch.id}">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          `).join('') || '<p style="color: var(--text-muted);">No chapters yet</p>'}
-        </div>
-      </div>
-    </div>
+      <h2 style="margin-bottom: 24px;">${record.title || record.name || record.id || 'Edit Record'}</h2>
   `;
+
+  fields.forEach(field => {
+    const value = record[field];
+    const fieldLabel = field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    let inputHTML = '';
+
+    if (field === 'id') {
+      // ID fields are read-only
+      inputHTML = `<input type="text" class="form-input" value="${value}" disabled />`;
+    } else if (typeof value === 'boolean') {
+      inputHTML = `<input type="checkbox" id="edit-${field}" ${value ? 'checked' : ''} />`;
+    } else if (typeof value === 'number') {
+      inputHTML = `<input type="number" class="form-input" id="edit-${field}" value="${value || ''}" />`;
+    } else if (typeof value === 'object' && value !== null) {
+      inputHTML = `<textarea class="form-textarea" id="edit-${field}" style="font-family: monospace; font-size: 0.9rem;">${JSON.stringify(value, null, 2)}</textarea>`;
+    } else if (field.includes('email')) {
+      inputHTML = `<input type="email" class="form-input" id="edit-${field}" value="${value || ''}" />`;
+    } else if (field.includes('url') || field.includes('link')) {
+      inputHTML = `<input type="url" class="form-input" id="edit-${field}" value="${value || ''}" />`;
+    } else if (field.includes('date') || field.includes('time')) {
+      inputHTML = `<input type="datetime-local" class="form-input" id="edit-${field}" value="${value || ''}" />`;
+    } else if (field.includes('description') || field.includes('content') || field.includes('message')) {
+      inputHTML = `<textarea class="form-textarea" id="edit-${field}">${value || ''}</textarea>`;
+    } else {
+      inputHTML = `<input type="text" class="form-input" id="edit-${field}" value="${value || ''}" />`;
+    }
+
+    formHTML += `
+      <div class="form-group">
+        <label class="form-label">${fieldLabel}</label>
+        ${inputHTML}
+      </div>
+    `;
+  });
+
+  formHTML += `
+    <div class="form-actions">
+      <button class="btn-save" id="save-record">
+        <i class="fas fa-save"></i> Save Changes
+      </button>
+      <button class="btn-delete" id="delete-record-btn">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </div>
+  </div>
+  `;
+
+  container.innerHTML = formHTML;
 
   // Attach event listeners
-  document.getElementById('save-module')?.addEventListener('click', saveModule);
-  document.getElementById('delete-module')?.addEventListener('click', () => deleteModule(module.id));
-  document.getElementById('add-chapter')?.addEventListener('click', addChapter);
-
-  document.querySelectorAll('[data-action="edit-chapter"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const chapterId = btn.getAttribute('data-chapter-id');
-      const chapter = chaptersArray.find(c => c.id === chapterId);
-      if (chapter) selectChapter(module, chapter);
-    });
-  });
-
-  document.querySelectorAll('[data-action="delete-chapter"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const chapterId = btn.getAttribute('data-chapter-id');
-      deleteChapter(module.id, chapterId);
-    });
-  });
+  document.getElementById('save-record')?.addEventListener('click', saveRecord);
+  document.getElementById('delete-record-btn')?.addEventListener('click', () => deleteRecord(record.id));
 }
 
-function renderChapterEditor(container) {
-  const chapter = selectedChapter;
-  const module = selectedModule;
-  container.innerHTML = `
-    <div class="edit-form">
-      <h2 style="margin-bottom: 24px;">Edit Chapter</h2>
 
-      <div class="form-group">
-        <label class="form-label">Chapter ID</label>
-        <input type="text" class="form-input" id="edit-ch-id" value="${chapter.id}" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Chapter Title</label>
-        <input type="text" class="form-input" id="edit-ch-title" value="${chapter.title}" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Video ID (YouTube)</label>
-        <input type="text" class="form-input" id="edit-ch-videoId" value="${chapter.video_id || ''}" placeholder="e.g., IYVEI1EYfPg" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Duration</label>
-        <input type="text" class="form-input" id="edit-ch-duration" value="${chapter.duration || ''}" placeholder="e.g., 3 hours" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="edit-ch-description">${chapter.description || ''}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Links (JSON Array)</label>
-        <textarea class="form-textarea" id="edit-ch-links" style="font-family: monospace; font-size: 0.9rem;">${JSON.stringify(chapter.links || [], null, 2)}</textarea>
-      </div>
-
-      <div class="form-actions">
-        <button class="btn-save" id="save-chapter">
-          <i class="fas fa-save"></i> Save Chapter
-        </button>
-        <button class="btn-delete" id="delete-chapter">
-          <i class="fas fa-trash"></i> Delete
-        </button>
-        <button class="btn-cancel" id="back-to-module">
-          <i class="fas fa-arrow-left"></i> Back
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('save-chapter')?.addEventListener('click', saveChapter);
-  document.getElementById('delete-chapter')?.addEventListener('click', () => deleteChapter(module.id, chapter.id));
-  document.getElementById('back-to-module')?.addEventListener('click', () => selectModule(module));
-}
-
-async function saveModule() {
+async function saveRecord() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     alert("Please log in");
     return;
   }
 
-  if (!modulesTableName) {
-    alert("Table configuration not loaded");
+  if (!selectedRecord || !currentTable) {
+    alert("No record selected");
     return;
   }
 
-  const title = document.getElementById('edit-title').value;
-  const description = document.getElementById('edit-description').value;
-  const duration = document.getElementById('edit-duration').value;
-
   try {
+    const fields = Object.keys(selectedRecord).filter(key => !key.startsWith('_') && key !== 'id');
+    const updates = {};
+
+    fields.forEach(field => {
+      const input = document.getElementById(`edit-${field}`);
+      if (!input) return;
+
+      let value = input.type === 'checkbox' ? input.checked : input.value;
+
+      // Try to parse JSON if it looks like JSON
+      if (typeof value === 'string' && (value.startsWith('{') || value.startsWith('['))) {
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // Keep as string if not valid JSON
+        }
+      }
+
+      updates[field] = value;
+    });
+
     const { error } = await supabase
-      .from(modulesTableName)
-      .update({ title, description, duration })
-      .eq('id', selectedModule.id);
+      .from(currentTable)
+      .update(updates)
+      .eq('id', selectedRecord.id);
 
     if (error) throw error;
 
-    alert('Module saved successfully!');
-    selectedModule.title = title;
-    selectedModule.description = description;
-    selectedModule.duration = duration;
-    renderModulesList();
+    alert('Record saved successfully!');
+    
+    // Update in memory and UI
+    Object.assign(selectedRecord, updates);
+    renderDynamicList();
     renderEditorContent();
   } catch (err) {
     console.error(err);
@@ -797,78 +936,34 @@ async function saveModule() {
   }
 }
 
-async function saveChapter() {
+async function deleteRecord(recordId) {
+  if (!confirm('Are you sure you want to delete this record?')) {
+    return;
+  }
+
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     alert("Please log in");
     return;
   }
 
-  if (!chaptersTableName) {
-    alert("Table configuration not loaded");
-    return;
-  }
-
-  const id = document.getElementById('edit-ch-id').value;
-  const title = document.getElementById('edit-ch-title').value;
-  const video_id = document.getElementById('edit-ch-videoId').value;
-  const duration = document.getElementById('edit-ch-duration').value;
-  const description = document.getElementById('edit-ch-description').value;
-  
-  let links = [];
-  try {
-    links = JSON.parse(document.getElementById('edit-ch-links').value);
-  } catch (e) {
-    alert('Links must be valid JSON');
+  if (!currentTable) {
+    alert("Table not selected");
     return;
   }
 
   try {
     const { error } = await supabase
-      .from(chaptersTableName)
-      .update({ title, video_id, duration, description, links })
-      .eq('id', id);
+      .from(currentTable)
+      .delete()
+      .eq('id', recordId);
 
     if (error) throw error;
 
-    alert('Chapter saved successfully!');
-    selectedChapter.title = title;
-    selectedChapter.video_id = video_id;
-    selectedChapter.duration = duration;
-    selectedChapter.description = description;
-    selectedChapter.links = links;
-    selectModule(selectedModule);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to save: ' + err.message);
-  }
-}
-
-async function deleteModule(moduleId) {
-  if (!confirm('Are you sure you want to delete this module? This will also delete all its chapters.')) {
-    return;
-  }
-
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    alert("Please log in");
-    return;
-  }
-
-  if (!modulesTableName || !chaptersTableName) {
-    alert("Table configuration not loaded");
-    return;
-  }
-
-  try {
-    await supabase.from(chaptersTableName).delete().eq('module_id', moduleId);
-    await supabase.from(modulesTableName).delete().eq('id', moduleId);
-
-    alert('Module deleted successfully!');
-    currentData = currentData.filter(m => m.id !== moduleId);
-    selectedModule = null;
-    selectedChapter = null;
-    renderModulesList();
+    alert('Record deleted successfully!');
+    currentData = currentData.filter(r => r.id !== recordId);
+    selectedRecord = null;
+    renderDynamicList();
     renderEditorContent();
   } catch (err) {
     console.error(err);
@@ -876,51 +971,61 @@ async function deleteModule(moduleId) {
   }
 }
 
-async function deleteChapter(moduleId, chapterId) {
-  if (!confirm('Are you sure you want to delete this chapter?')) {
-    return;
-  }
-
+async function addNewRecord() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
     alert("Please log in");
     return;
   }
 
-  if (!chaptersTableName) {
-    alert("Table configuration not loaded");
+  if (!currentTable) {
+    alert("Table not selected");
     return;
   }
 
-  try {
-    await supabase.from(chaptersTableName).delete().eq('id', chapterId);
+  // Get a sample record to understand the fields
+  if (currentData.length === 0) {
+    alert('Cannot create record without knowing table structure. Try editing an existing record first.');
+    return;
+  }
 
-    alert('Chapter deleted successfully!');
-    selectedModule.chapters = selectedModule.chapters.filter(c => c.id !== chapterId);
-    selectedChapter = null;
-    renderModulesList();
+  const sampleRecord = currentData[0];
+  const fields = Object.keys(sampleRecord).filter(key => !key.startsWith('_'));
+
+  // Prompt for required fields
+  const recordData = {};
+  let cancel = false;
+
+  for (const field of fields) {
+    if (field === 'id' || field === 'created_at' || field === 'updated_at') continue;
+    
+    const value = prompt(`Enter ${field}:`, '');
+    if (value === null) {
+      cancel = true;
+      break;
+    }
+    recordData[field] = value || null;
+  }
+
+  if (cancel) return;
+
+  try {
+    const { data, error } = await supabase
+      .from(currentTable)
+      .insert([recordData])
+      .select();
+
+    if (error) throw error;
+
+    alert('Record created successfully!');
+    currentData.push(data[0]);
+    selectedRecord = data[0];
+    renderDynamicList();
     renderEditorContent();
   } catch (err) {
     console.error(err);
-    alert('Failed to delete: ' + err.message);
+    alert('Failed to create record: ' + err.message);
   }
-}
-
-function addChapter() {
-  const newChapterId = prompt('Enter new chapter ID (e.g., 1.4):');
-  if (!newChapterId) return;
-
-  const chapter = {
-    id: newChapterId,
-    title: 'New Chapter',
-    video_id: '',
-    duration: '',
-    description: '',
-    links: []
-  };
-
-  selectedChapter = chapter;
-  renderEditorContent();
 }
 
 // Initialize search listener
@@ -937,21 +1042,8 @@ function initializeSearchListener() {
     
     document.querySelectorAll('.module-item').forEach(item => {
       const title = item.querySelector('.module-item-title')?.textContent.toLowerCase() || '';
-      const chapters = item.querySelectorAll('.chapter-item');
       const matches = title.includes(query);
-      
-      let chapterMatches = false;
-      chapters.forEach(ch => {
-        const chTitle = ch.textContent.toLowerCase();
-        if (chTitle.includes(query)) {
-          ch.style.display = 'block';
-          chapterMatches = true;
-        } else {
-          ch.style.display = 'none';
-        }
-      });
-
-      item.style.display = matches || chapterMatches ? 'block' : 'none';
+      item.style.display = matches ? 'block' : 'none';
     });
   });
 }
