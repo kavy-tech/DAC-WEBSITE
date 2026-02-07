@@ -35,6 +35,9 @@ async function checkAuth() {
       emailDisplay.textContent = `Logged in as ${session.user.email}`;
     }
 
+    // Fetch table names now that user is authenticated
+    await fetchTableNames();
+
     enableNavigation();
   } else {
     // Not logged in → show login form, hide user info
@@ -144,15 +147,20 @@ document.getElementById("download-json").addEventListener("click", async () => {
     return;
   }
 
+  if (!modulesTableName || !chaptersTableName) {
+    alert("Table configuration not loaded. Please refresh the page.");
+    return;
+  }
+
   const { data, error } = await supabase
-    .from("modules")
+    .from(modulesTableName)
     .select(`
       id,
       title,
       description,
       duration,
       sort_order,
-      chapters (
+      ${chaptersTableName} (
         id,
         title,
         video_id,
@@ -163,7 +171,7 @@ document.getElementById("download-json").addEventListener("click", async () => {
       )
     `)
     .order("sort_order", { ascending: true })
-    .order("sort_order", { foreignTable: "chapters", ascending: true });
+    .order("sort_order", { foreignTable: chaptersTableName, ascending: true });
 
   if (error) {
     alert("Failed to download JSON");
@@ -177,7 +185,7 @@ document.getElementById("download-json").addEventListener("click", async () => {
       title: m.title,
       description: m.description,
       duration: m.duration,
-      chapters: (m.chapters || []).map(c => ({
+      chapters: (m[chaptersTableName] || []).map(c => ({
         id: c.id,
         title: c.title,
         videoId: c.video_id || "",
@@ -228,8 +236,12 @@ document.getElementById("upload-btn").addEventListener("click", async () => {
 SYNC LOGIC
 ========================= */
 async function syncToSupabase(json) {
-  await supabase.from("chapters").delete().neq("id", "");
-  await supabase.from("modules").delete().neq("id", "");
+  if (!modulesTableName || !chaptersTableName) {
+    throw new Error("Table configuration not loaded");
+  }
+
+  await supabase.from(chaptersTableName).delete().neq("id", "");
+  await supabase.from(modulesTableName).delete().neq("id", "");
 
   const modulesPayload = json.modules.map((m, index) => ({
     id: m.id,
@@ -240,7 +252,7 @@ async function syncToSupabase(json) {
   }));
 
   const { error: modulesError } = await supabase
-    .from("modules")
+    .from(modulesTableName)
     .insert(modulesPayload);
 
   if (modulesError) throw modulesError;
@@ -259,7 +271,7 @@ async function syncToSupabase(json) {
   );
 
   const { error: chaptersError } = await supabase
-    .from("chapters")
+    .from(chaptersTableName)
     .insert(chaptersPayload);
 
   if (chaptersError) throw chaptersError;
@@ -355,7 +367,76 @@ JSON CONTENT EDITOR
 let currentData = null;
 let selectedModule = null;
 let selectedChapter = null;
-let currentTable = 'modules';
+let currentTable = 'db_modules';
+
+// Dynamic table names (fetched from public_tables_list)
+let modulesTableName = null;
+let chaptersTableName = null;
+let availableTables = []; // Store all available tables
+
+// Fetch table names from public_tables_list
+async function fetchTableNames() {
+  try {
+    const { data, error } = await supabase
+      .from('public_tables_list')
+      .select('id, table_name');
+
+    if (error) throw error;
+
+    console.log('Available tables:', data);
+
+    // Store all available tables
+    availableTables = data;
+
+    // Find the modules and chapters table names by ID
+    data.forEach(row => {
+      if (row.table_name === 'db_modules') {
+        modulesTableName = row.table_name;
+      } else if (row.table_name === 'db_chapters') {
+        chaptersTableName = row.table_name;
+      }
+    });
+
+    if (!modulesTableName || !chaptersTableName) {
+      console.error('Failed to find modules or chapters in table list');
+      throw new Error('Required tables not found in public_tables_list');
+    }
+
+    console.log(`✓ Modules table: ${modulesTableName}`);
+    console.log(`✓ Chapters table: ${chaptersTableName}`);
+
+    // Populate the table selector dropdown
+    populateTableSelector();
+  } catch (err) {
+    console.error('Failed to fetch table names:', err);
+    alert('Error loading table configuration: ' + err.message);
+  }
+}
+
+// Populate table selector dropdown with available tables
+function populateTableSelector() {
+  const tableSelect = document.getElementById('table-select');
+  if (!tableSelect) return;
+
+  // Clear existing options
+  tableSelect.innerHTML = '';
+
+  // Add options for each available table
+  availableTables.forEach(table => {
+    const option = document.createElement('option');
+    option.value = table.table_name;
+    option.textContent = table.table_name || table.id;
+    tableSelect.appendChild(option);
+  });
+
+  // Set default to modules table
+  if (modulesTableName) {
+    tableSelect.value = modulesTableName;
+    currentTable = modulesTableName;
+  }
+
+  console.log('Table selector populated with options:', availableTables);
+}
 
 // Table selector listener
 document.getElementById('table-select')?.addEventListener('change', (e) => {
@@ -370,20 +451,27 @@ async function loadEditorContent() {
     return;
   }
 
+  if (!modulesTableName || !chaptersTableName) {
+    alert("Table configuration not loaded. Please refresh the page.");
+    return;
+  }
+
   try {
     let data;
     let error;
     
-    if (currentTable === 'modules') {
+    if (currentTable === 'db_modules') {
+      console.log(`Loading from ${modulesTableName} with relationship to ${chaptersTableName}`);
+      
       const result = await supabase
-        .from("modules")
+        .from(modulesTableName)
         .select(`
           id,
           title,
           description,
           duration,
           sort_order,
-          chapters (
+          ${chaptersTableName} (
             id,
             title,
             video_id,
@@ -394,10 +482,15 @@ async function loadEditorContent() {
           )
         `)
         .order("sort_order", { ascending: true })
-        .order("sort_order", { foreignTable: "chapters", ascending: true });
+        .order("sort_order", { foreignTable: chaptersTableName, ascending: true });
       
       data = result.data;
       error = result.error;
+      
+      if (error) {
+        console.error('Query error:', error);
+        throw error;
+      }
     } else {
       const result = await supabase
         .from(currentTable)
@@ -415,7 +508,7 @@ async function loadEditorContent() {
     selectedChapter = null;
     renderModulesList();
   } catch (err) {
-    console.error(err);
+    console.error('LoadEditorContent error:', err);
     alert("Failed to load content: " + err.message);
   }
 }
@@ -425,11 +518,12 @@ function renderModulesList() {
   modulesList.innerHTML = '';
 
   currentData.forEach(module => {
+    const chaptersArray = module[chaptersTableName] || [];
     const moduleDiv = document.createElement('div');
     moduleDiv.className = 'module-item' + (selectedModule?.id === module.id ? ' active' : '');
     moduleDiv.innerHTML = `
       <div class="module-item-title">${module.title}</div>
-      <div class="module-item-subtitle">${module.chapters?.length || 0} chapters</div>
+      <div class="module-item-subtitle">${chaptersArray.length || 0} chapters</div>
       <div class="module-item-actions">
         <button class="module-item-btn" data-action="edit-module" data-module-id="${module.id}" title="Edit Module">
           <i class="fas fa-edit"></i>
@@ -450,9 +544,9 @@ function renderModulesList() {
     modulesList.appendChild(moduleDiv);
 
     // Render chapters
-    if (module.chapters && module.chapters.length > 0) {
+    if (chaptersArray && chaptersArray.length > 0) {
       const chaptersContainer = moduleDiv.querySelector(`#chapters-${module.id}`);
-      module.chapters.forEach(chapter => {
+      chaptersArray.forEach(chapter => {
         const chapterDiv = document.createElement('div');
         chapterDiv.className = 'chapter-item' + (selectedChapter?.id === chapter.id ? ' active' : '');
         chapterDiv.textContent = chapter.title;
@@ -479,7 +573,7 @@ function renderModulesList() {
         deleteModule(moduleId);
       } else if (action === 'edit-chapter') {
         const module = currentData.find(m => m.id === moduleId);
-        const chapter = module.chapters.find(c => c.id === chapterId);
+        const chapter = module[chaptersTableName].find(c => c.id === chapterId);
         selectChapter(module, chapter);
       } else if (action === 'delete-chapter') {
         deleteChapter(moduleId, chapterId);
@@ -527,6 +621,7 @@ function renderEditorContent() {
 
 function renderModuleEditor(container) {
   const module = selectedModule;
+  const chaptersArray = module[chaptersTableName] || [];
   container.innerHTML = `
     <div class="edit-form">
       <h2 style="margin-bottom: 24px;">${module.title}</h2>
@@ -557,14 +652,14 @@ function renderModuleEditor(container) {
 
       <div class="chapters-section">
         <div class="chapters-header">
-          <h3>Chapters (${module.chapters?.length || 0})</h3>
+          <h3>Chapters (${chaptersArray.length || 0})</h3>
           <button class="btn-add-chapter" id="add-chapter">
             <i class="fas fa-plus"></i> Add Chapter
           </button>
         </div>
 
         <div class="chapters-list">
-          ${module.chapters?.map(ch => `
+          ${chaptersArray?.map(ch => `
             <div class="chapter-card">
               <div class="chapter-card-header">
                 <div style="flex: 1;">
@@ -596,7 +691,7 @@ function renderModuleEditor(container) {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const chapterId = btn.getAttribute('data-chapter-id');
-      const chapter = module.chapters.find(c => c.id === chapterId);
+      const chapter = chaptersArray.find(c => c.id === chapterId);
       if (chapter) selectChapter(module, chapter);
     });
   });
@@ -673,13 +768,18 @@ async function saveModule() {
     return;
   }
 
+  if (!modulesTableName) {
+    alert("Table configuration not loaded");
+    return;
+  }
+
   const title = document.getElementById('edit-title').value;
   const description = document.getElementById('edit-description').value;
   const duration = document.getElementById('edit-duration').value;
 
   try {
     const { error } = await supabase
-      .from('modules')
+      .from(modulesTableName)
       .update({ title, description, duration })
       .eq('id', selectedModule.id);
 
@@ -704,6 +804,11 @@ async function saveChapter() {
     return;
   }
 
+  if (!chaptersTableName) {
+    alert("Table configuration not loaded");
+    return;
+  }
+
   const id = document.getElementById('edit-ch-id').value;
   const title = document.getElementById('edit-ch-title').value;
   const video_id = document.getElementById('edit-ch-videoId').value;
@@ -720,7 +825,7 @@ async function saveChapter() {
 
   try {
     const { error } = await supabase
-      .from('chapters')
+      .from(chaptersTableName)
       .update({ title, video_id, duration, description, links })
       .eq('id', id);
 
@@ -750,9 +855,14 @@ async function deleteModule(moduleId) {
     return;
   }
 
+  if (!modulesTableName || !chaptersTableName) {
+    alert("Table configuration not loaded");
+    return;
+  }
+
   try {
-    await supabase.from('chapters').delete().eq('module_id', moduleId);
-    await supabase.from('modules').delete().eq('id', moduleId);
+    await supabase.from(chaptersTableName).delete().eq('module_id', moduleId);
+    await supabase.from(modulesTableName).delete().eq('id', moduleId);
 
     alert('Module deleted successfully!');
     currentData = currentData.filter(m => m.id !== moduleId);
@@ -777,8 +887,13 @@ async function deleteChapter(moduleId, chapterId) {
     return;
   }
 
+  if (!chaptersTableName) {
+    alert("Table configuration not loaded");
+    return;
+  }
+
   try {
-    await supabase.from('chapters').delete().eq('id', chapterId);
+    await supabase.from(chaptersTableName).delete().eq('id', chapterId);
 
     alert('Chapter deleted successfully!');
     selectedModule.chapters = selectedModule.chapters.filter(c => c.id !== chapterId);
