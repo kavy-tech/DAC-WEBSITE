@@ -25,13 +25,13 @@ DATA LOADING
 async function loadLearningData() {
   try {
     const { data, error } = await supabase
-      .from("modules")
+      .from("db_modules")
       .select(`
         id,
         title,
         description,
         duration,
-        chapters (
+        db_chapters (
           id,
           title,
           video_id,
@@ -41,7 +41,7 @@ async function loadLearningData() {
         )
       `)
       .order("sort_order", { ascending: true })
-      .order("sort_order", { foreignTable: "chapters", ascending: true });
+      .order("sort_order", { foreignTable: "db_chapters", ascending: true });
 
     if (error) throw error;
 
@@ -52,7 +52,7 @@ async function loadLearningData() {
         title: module.title,
         description: module.description,
         duration: module.duration,
-        chapters: module.chapters.map(chapter => ({
+        chapters: (module.db_chapters || []).map(chapter => ({
           id: chapter.id,
           title: chapter.title,
           videoId: chapter.video_id,
@@ -70,7 +70,7 @@ async function loadLearningData() {
     console.error("Supabase failed, using local JSON", error);
 
     try {
-      const localResponse = await fetch("./learning-data.json");
+      const localResponse = await fetch("./learn/learning-data.json");
       learningData = await localResponse.json();
       renderModules();
     } catch (localError) {
@@ -166,7 +166,7 @@ function renderModules() {
         // Split chapters: first 2 visible, rest hidden
         const visibleChapters = m.chapters.slice(0, 2); // Change Here If you wish to change the number of visible chapters...
         const hiddenChapters = m.chapters.slice(2); // And Here
-        const safeModuleId = `module-${m.id.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        const safeModuleId = `module-${String(m.id).replace(/[^a-zA-Z0-9]/g, '-')}`;
 
         // Render visible chapters (FIXED YouTube URL: removed spaces)
         const visibleHTML = visibleChapters.map(c => {
@@ -505,38 +505,8 @@ LOAD DATA FROM API or JSON FALLBACK
 ========================= */
 // Note: Call this function after DOM is ready
 async function initLearningData() {
-/*
-  try {
-  // Try to load from API first
-  console.log('Attempting to load from API:', API_BASE_URL);
-  const response = await fetch(`${API_BASE_URL}/api/learning-data`);
-  if (!response.ok) {
-    throw new Error(`API returned ${response.status}`);
-  }
-  const data = await response.json();
-  learningData = data;
-  console.log('Learning data loaded successfully from API');
-} catch (apiError) {
-  console.warn('Failed to load from API, trying local JSON:', apiError);*/
-
-  try {
-    // Fallback to local JSON
-    const localResponse = await fetch('./learn/learning-data.json');
-    if (!localResponse.ok) {
-      throw new Error(`Failed to load local data: ${localResponse.statusText}`);
-    }
-    const data = await localResponse.json();
-    learningData = data;
-    console.log('Learning data loaded successfully from local JSON');
-  } catch (error) {
-    console.error('Error loading learning data:', error);
-    showError('Failed to load course data. Please refresh the page.');
-    return;
-  }
-
-
-loadProgressFromStorage();
-renderModules();
+  await loadLearningData();
+  loadProgressFromStorage();
 }
 
 /* =========================
