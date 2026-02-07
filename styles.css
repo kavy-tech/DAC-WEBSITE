@@ -409,6 +409,44 @@ TIMELINE SECTION
 
 
 /* Gradient Section */
+.gradient {
+    position: relative;
+    width: 100%;
+}
+
+.gradient::before,
+.gradient::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Technical border thickness */
+    z-index: 100;
+    pointer-events: none;
+
+    /* LINEAR GRADIENT MAPPING:
+       1. Top: Bright Cyan accent (About Section start)
+       2. Middle: Navy-600 (Transition)
+       3. Bottom: Deep Navy to Black (Meet the Team style)
+    */
+    background: linear-gradient(to bottom,
+            var(--cyan-500) 0%,
+            var(--navy-600) 40%,
+            #111a3b 75%,
+            #000000 100%);
+
+    /* Subtle glow that matches the 'Meet the Team' atmosphere */
+    box-shadow: 0 0 12px rgba(17, 26, 59, 0.5);
+}
+
+.gradient::before {
+    left: 15px;
+}
+
+.gradient::after {
+    right: 15px;
+}
 
 
 /* ========================================
