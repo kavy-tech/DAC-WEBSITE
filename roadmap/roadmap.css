@@ -1,0 +1,251 @@
+/* Basic Setup */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: #0A0B16;
+    color: white;
+}
+
+.container {
+    width: 90%;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 60px;
+    color: #9b5de5; /* Purple glow */
+    text-shadow: 0 0 15px #9b5de5, 0 0 30px #6a0dad;
+}
+
+/* Skill Tree Container */
+.skill-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    gap: 80px;
+}
+
+/* Skill Node */
+.skill-node {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    transition: all 0.3s ease;
+}
+
+/* Alternate sides */
+.skill-node.right {
+    flex-direction: row-reverse;
+}
+.skill-node.left {
+    flex-direction: row;
+}
+
+/* Node circle */
+.node-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #9b5de5, #6a0dad);
+    box-shadow: 0 0 15px #9b5de5, 0 0 30px #6a0dad inset;
+    flex-shrink: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover Glow */
+.skill-node:hover .node-circle {
+    transform: scale(1.3);
+    box-shadow: 0 0 20px #9b5de5, 0 0 40px #6a0dad inset;
+}
+
+/* Node Content */
+.node-content {
+    max-width: 400px;
+    background: rgba(15, 15, 40, 0.6);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(155, 93, 229, 0.6);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.skill-node:hover .node-content {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(155, 93, 229, 0.8);
+}
+
+.node-content h3 {
+    font-size: 1.4rem;
+    margin: 0 0 10px 0;
+    color: #fff;
+    text-shadow: 0 0 8px #9b5de5;
+}
+
+.node-content p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* Connecting Lines */
+.node-line.vertical {
+    position: absolute;
+    width: 4px;
+    height: 60px;
+    background: #6a0dad;
+    top: 40px;
+    left: 18px;
+    z-index: -1;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #9b5de5;
+}
+
+.node-line.horizontal {
+    position: absolute;
+    width: 60px;
+    height: 4px;
+    background: #6a0dad;
+    top: 18px;
+    left: -60px;
+    z-index: -1;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #9b5de5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .skill-node, .skill-node.right, .skill-node.left {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .node-line.horizontal {
+        display: none;
+    }
+
+    .node-line.vertical {
+        top: 40px;
+        height: 60px;
+        left: 18px;
+    }
+
+    .node-content {
+        max-width: 90%;
+    }
+}
+
+
+.skill-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: 80px;
+  width: 100%;
+  max-width: 900px;  /* Fix max width for centering */
+  margin: auto;
+}
+
+/* Each node is a flex container with fixed widths for circle and content */
+.skill-node {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+}
+
+/* Nodes aligned left or right */
+.skill-node.left {
+  flex-direction: row;
+}
+
+.skill-node.right {
+  flex-direction: row-reverse;
+}
+
+/* Make the circle container fixed width */
+.node-circle {
+  width: 50px;
+  height: 50px;
+  min-width: 50px;  /* Fix width */
+  border-radius: 50%;
+  background: linear-gradient(145deg, #9b5de5, #6a0dad);
+  box-shadow: 0 0 15px #9b5de5, 0 0 30px #6a0dad inset;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Content box gets rest of the space */
+.node-content {
+  flex: 1;  /* take remaining space */
+  background: rgba(15, 15, 40, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(155, 93, 229, 0.6);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Connecting lines adjustments */
+.node-line.vertical {
+  position: absolute;
+  width: 4px;
+  height: 221px;
+  background: #6a0dad;
+  top: 50px;  /* From center of circle */
+  left: 25px; /* center horizontally inside 50px circle */
+  z-index: -1;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #9b5de5;
+}
+
+.node-line.horizontal {
+  position: absolute;
+  width: 650px;
+  height: 4px;
+  background: #6a0dad;
+  top: 60px;  /* vertically centered relative to circle */
+  left: 25px; /* connect left node to right node */
+  z-index: -1;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #9b5de5;
+}
+
+.node-line.vertical.right {
+  left: auto;
+  right: 25px; /* center horizontally inside 50px circle on the right */
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .skill-node, .skill-node.right, .skill-node.left {
+    flex-direction: column !important;
+    align-items: center;
+    text-align: center;
+  }
+
+  .node-line.horizontal {
+    display: none;
+  }
+
+  .node-line.vertical {
+    top: 50px;
+    left: 25px;
+    height: 50px;
+  }
+
+  .node-content {
+    max-width: 90%;
+  }
+}
