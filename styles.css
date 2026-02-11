@@ -465,67 +465,47 @@ ABOUT SECTION
     max-width: 1350px;
 }
 
+/* Section Title */
 .section-title {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 60px;
-    color: white;
     letter-spacing: -0.5px;
-    display: flex;
-    justify-content: center;
+    text-align: center;
 }
 
+/* Info Row / Paragraphs */
 .info-row {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 40px;
+    flex-direction: column;
+    gap: 1.8rem; /* more breathing room */
+    max-width: 900px; /* limits line length for readability */
+    margin: 0 auto;
 }
 
-.info-left {
-    flex: 1;
-    min-width: 300px;
+.info-row p {
+    text-align: justify;
+    font-size: 1.15rem; /* slightly bigger for readability */
+    line-height: 1.8; /* spacious line height */
+    color: var(--text-muted); /* softer text against dark bg */
+    transition: color 0.3s ease;
 }
 
-.info-num {
-    display: block;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 15px;
+/* Optional: subtle highlight on hover */
+.info-row p:hover {
+    color: var(--text-main);
 }
 
-.info-left h3 {
-    font-size: 2.2rem;
-    font-weight: 600;
-    margin: 0;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
-}
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
 
-.info-right {
-    flex: 1.5;
-    padding-top: 45px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 60px;
-}
-
-.info-right p {
-    font-size: 1.1rem;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.75);
-    font-weight: 300;
-    margin: 0;
-    max-width: 100%;
-}
-
-.info-right strong {
-    color: white;
-    font-weight: 600;
-}
-
-.info-row:last-child .info-right {
-    border-bottom: none;
-    margin-bottom: 0;
+    .info-row p {
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
 }
 
 
@@ -797,19 +777,15 @@ CURRICULUM SECTION
     left: 0;
     color: rgba(255, 255, 255, 0.4);
 }
-
-
 /* ========================================
 EVENTS SECTION
 ======================================== */
 .events-section {
     width: 100%;
-    background: linear-gradient(180deg, #0F1124 0%, #0A0B16 100%);
     padding: 80px 0;
+    background: var(--bg-main);
     display: flex;
     justify-content: center;
-    position: relative;
-    z-index: 30;
 }
 
 .events-section .container {
@@ -817,50 +793,135 @@ EVENTS SECTION
     max-width: 1350px;
 }
 
-.events-section h2 {
+.events-section .section-title {
+    text-align: center;
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
     color: white;
     letter-spacing: -0.5px;
-    text-align: center;
 }
 
+/* =========================
+EVENTS LIST
+========================= */
 .events-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-wrap: wrap;      /* Allow items to wrap to the next line */
+    gap: 30px;
+    justify-content: center; /* Optional: center the wrapped items */
 }
 
+/* =========================
+EVENT CARD
+========================= */
 .events-list li {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    background: var(--bg-card);
+    padding: 20px;
     border-radius: var(--radius);
-    padding: 25px 30px;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(15px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    min-width: 100px;
+    max-width: 400px;
+    width: 100%;
 }
 
 .events-list li:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateX(5px);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-strong);
+}
+
+/* =========================
+THUMBNAIL
+========================= */
+.event-thumb {
+    width: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.events-list li:hover .event-thumb {
+    transform: scale(1.05);
+}
+
+/* =========================
+EVENT CONTENT
+========================= */
+.event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
 }
 
 .events-list li strong {
-    display: block;
-    font-size: 1.15rem;
-    color: white;
-    margin-bottom: 10px;
-    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--navy-300);
 }
 
 .events-list li div {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.95rem;
+    font-size: 1rem;
+    color: var(--text-muted);
     line-height: 1.6;
 }
 
+.events-list li .event-date {
+    font-size: 0.9rem;
+    color: var(--text-faint);
+    margin-top: 8px;
+}
+
+.event-title {
+    text-decoration: none;
+    color: var(--navy-300);
+    transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.event-title:hover {
+    color: var(--cyan-400);
+    text-decoration: underline;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+    .events-section .section-title {
+        font-size: 2rem;
+    }
+
+    .events-list {
+        gap: 20px;
+    }
+
+    .events-list li {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .event-thumb {
+        width: 100%;
+        height: 180px;
+        border-radius: var(--radius);
+    }
+
+    .event-content {
+        gap: 12px;
+    }
+}
 
 /* ========================================
 ACHIEVEMENTS SECTION

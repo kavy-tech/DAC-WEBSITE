@@ -76,7 +76,8 @@ async function loadEventData() {
       events: data.map(event => ({
         title: event.title,
         description: event.description,
-        event_date: event.event_date
+        event_date: event.event_date,
+        image: event.image_url || './events/imgs/img1.png' // fallback if no image
       }))
     };
 
@@ -98,23 +99,28 @@ async function loadEventData() {
 
 function renderEvents() {
   const container = document.querySelector(".events-list");
-  
   if (!container) return;
 
   container.innerHTML = "";
 
   eventData.events.forEach(e => {
     const newEvent = document.createElement("li");
-    
+
     newEvent.innerHTML = `
-      <strong>${e.title}</strong>
-      <div>${e.description}</div>
-      ${e.event_date ? `<div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px;">${new Date(e.event_date).toLocaleDateString()}</div>` : ''}
+      ${e.image ? `<img src="${e.image}" alt="${e.title}" class="event-thumb">` : ''}
+      <div class="event-content">
+        <a href="https://example.com" target="_blank" rel="noopener" class="event-title">
+          <strong>${e.title}</strong>
+        </a>
+        <div>${e.description}</div>
+        ${e.event_date ? `<div class="event-date">${new Date(e.event_date).toLocaleDateString()}</div>` : ''}
+      </div>
     `;
 
     container.appendChild(newEvent);
   });
 }
+
 
 /* =========================
 TEAM DATA LOADING
