@@ -1130,8 +1130,8 @@ TEAM SECTION
 
 .core-team-container {
     display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 15px;
     width: 92%;
     max-width: 1350px;
