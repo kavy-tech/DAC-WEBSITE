@@ -849,6 +849,7 @@ THUMBNAIL
     border-radius: var(--radius);
     flex-shrink: 0;
     transition: transform 0.3s ease;
+    max-width: 250px;
 }
 
 .events-list li:hover .event-thumb {
@@ -916,6 +917,7 @@ RESPONSIVE
         width: 100%;
         height: 180px;
         border-radius: var(--radius);
+        max-width: 250px;
     }
 
     .event-content {
