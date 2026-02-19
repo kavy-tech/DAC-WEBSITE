@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Club - Learning Hub </title>
+
+    <link rel="icon" href="/images/photo1769090522.jpg" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./project.css" preload>
+
+</head>
+
+<body>
+    <!-- Header + Navigation -->
+    <header class="site-header">
+        <div class="logo-container" onclick="window.location.href='/'">
+            <img src="./assets/logo.png" alt="DAC logo" class="logo-icon" style="width: 50px;">
+            <div class="logo-text">
+                <span class="logo-title">DAC</span>
+                <span class="logo-subtitle">Projects</span>
+            </div>
+        </div>
+
+        <nav class="nav-pill">
+            <a href="/#about" class="nav-link">About</a>
+            <a href="/#solutions" class="nav-link">Initiatives</a>
+            <a href="/#events" class="nav-link">Events</a>
+            <a href="/#achievements" class="nav-link">Impact</a>
+            <a href="/#contact" class="nav-link">Contact</a>
+        </nav>
+
+        <div class="cta-container">
+            <a href="/" class="join-btn">Back to Home</a>
+        </div>
+    </header>
+
+    <!-- Learning Hub Content -->
+    <div class="projects-container">
+        <section class="module-section">
+            
+        <div class="dac-header">
+            <div class="heading-wrapper">
+                <i class="fa-solid fa-chart-line floating-icon i1"></i>
+                <i class="fa-solid fa-database floating-icon i2"></i>
+                <i class="fa-solid fa-microchip floating-icon i3"></i>
+                <i class="fa-solid fa-code floating-icon i4"></i>
+                <i class="fa-solid fa-brain floating-icon i5"></i>
+                <i class="fa-solid fa-network-wired floating-icon i6"></i>
+                <i class="fa-solid fa-cloud floating-icon i7"></i>
+                
+                
+                <h1>DAC Projects</h1>
+            </div>
+            <p>Work that proves US</p>
+        </div>
+        
+        <div id="modules-container" class="modules-grid">
+            <div class="module-card module-card-1" bis_skin_checked="1">
+                <div class="module-header" bis_skin_checked="1">
+                    <h3>1. Statistics Fundamentals</h3>
+                    <div class="tags-container">
+                        
+                        <span class="tech-tag tag-sql">SQL</span>
+                        <span class="tech-tag tag-python">Python</span>
+                        <span class="tech-tag tag-html">HTML</span>
+                        <span class="tech-tag tag-css">CSS</span>
+                    </div>
+                            <p>Master statistical concepts and techniques essential for data analysis, including descriptive and inferential statistics, probability distributions, and hypothesis testing.</p>
+                        </div>
+      
+                        <div class="chapter-card" onclick="playChapter('1','1.1')" bis_skin_checked="1">
+                            <div class="chapter-thumbnail" bis_skin_checked="1">
+                                <img src="https://img.youtube.com/vi/IYVEI1EYfPg/mqdefault.jpg" alt="Introduction to Statistics &amp; Data Types wow" loading="lazy">
+                             </div>
+                            <div class="chapter-content" bis_skin_checked="1">
+                                <span>Introduction to Statistics &amp; Data Types wow</span>
+                                <p class="chapter-description">Introduction to Statistics, Types of Data (Qualitative and Quantitative), Overview of Descriptive and Inferential Statistics. Part 1 of complete statistics course covering all essential concepts needed for data analysis.</p>
+                            </div>
+                            <div class="chapter-actions" bis_skin_checked="1">
+                                <button aria-label="Play Introduction to Statistics &amp; Data Types wow">▶</button>
+                            </div>
+                        </div>
+                        <div class="chapter-card" onclick="playChapter('1','1.2')" bis_skin_checked="1">
+                             <div class="chapter-thumbnail" bis_skin_checked="1">
+                                <img src="https://img.youtube.com/vi/IYVEI1EYfPg/mqdefault.jpg" alt="Sampling, Measures of Central Tendency &amp; Dispersion" loading="lazy">
+                            </div>
+                            <div class="chapter-content" bis_skin_checked="1">
+                                <span>Sampling, Measures of Central Tendency &amp; Dispersion</span>
+                                <p class="chapter-description">Sampling Techniques (Population vs Sample, Probability and Non-Probability Sampling), Measures of Central Tendency (Mean, Median, Mode), Measures of Dispersion (Range, Variance, Standard Deviation, Mean Deviation).</p>
+                            </div>
+                            <div class="chapter-actions" bis_skin_checked="1">
+                                <button aria-label="Play Sampling, Measures of Central Tendency &amp; Dispersion">▶</button>
+                            </div>
+                        </div>
+      
+                        
+                        <div id="hidden-ch-module-1" class="hidden-chapters" aria-hidden="true" bis_skin_checked="1">
+          
+                            <div class="chapter-card" onclick="playChapter('1','1.3')" bis_skin_checked="1">
+                                <div class="chapter-thumbnail" bis_skin_checked="1">
+                                    <img src="https://img.youtube.com/vi/tYNTn5404z8/mqdefault.jpg" alt="Probability &amp; Probability Distributions" loading="lazy">
+                                </div>
+                                <div class="chapter-content" bis_skin_checked="1">
+                                    <span>Probability &amp; Probability Distributions</span>
+                                     <p class="chapter-description">Probability concepts (Addition Rule, Independent Events, Conditional Probability, Bayes' Theorem), Probability Distributions (Uniform, Binomial, Poisson, Normal Distributions), Skewness, Kurtosis, Z-Score calculations.</p>
+                                </div>
+                                <div class="chapter-actions" bis_skin_checked="1">
+                                    <button aria-label="Play Probability &amp; Probability Distributions">▶</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                
+            </div>
+        </section>
+    </div>
+
+    <!-- VIDEO MODAL -->
+    <div id="video-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal" class="modal-close">✕</button>
+            <h3 id="video-title"></h3>
+
+            <div id="error-message" class="error-message">
+                <strong>⚠️ Video Playback Error</strong>
+                <p id="error-text"></p>
+            </div>
+
+            <div class="video-wrapper">
+                <div id="player"></div>
+            </div>
+
+            <div class="progress-container">
+                <p id="progress-text">Progress: 0%</p>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button id="prev-chapter">← Previous</button>
+                <button id="next-chapter">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer-section">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>Data Analytics Club — DDUC</p>
+                <p>A student initiative for practical data skills and industry collaboration.</p>
+            </div>
+
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/company/data-analytics-club-dduc-du/" target="_blank" rel="noreferrer">LinkedIn</a>
+                <a href="https://www.instagram.com/dataanalyticsclubdduc/" target="_blank" rel="noreferrer">Instagram</a>
+                <a href="https://dducollegedu.ac.in/" target="_blank" rel="noreferrer">DDU College</a>
+                <a href="#">Privacy</a>
+            </div>
+
+            <div class="footer-copyright">
+                &copy; 2026 Data Analytics Club — DDUC<br>
+                Made by Technical & Research team DAC
+            </div>
+        </div>
+    </footer>
+
+    <!-- <script type="module" src="../learn/learn.js" defer></script> -->
+</body>
+</html>
